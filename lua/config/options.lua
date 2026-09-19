@@ -36,6 +36,7 @@ opt.swapfile = false
 opt.updatetime = 250
 opt.timeoutlen = 400
 opt.confirm = true -- ask instead of failing on :q with unsaved changes
+opt.autoread = true -- reload files changed outside nvim (e.g. by Claude); see checktime autocmd
 opt.virtualedit = "block"
 
 -- Search

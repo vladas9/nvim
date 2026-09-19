@@ -39,3 +39,25 @@ vim.api.nvim_create_autocmd("FileType", {
     if vim.bo.filetype == "go" then vim.opt_local.expandtab = false end
   end,
 })
+
+-- Reload files changed outside nvim (e.g. edited by Claude in the terminal split).
+-- autoread only checks timestamps on a few events, so trigger checktime ourselves.
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "TermLeave", "TermClose" }, {
+  group = aug("autoread"),
+  callback = function()
+    -- checktime is a no-op while an autocmd is running, so defer it
+    vim.schedule(function()
+      if vim.fn.getcmdwintype() == "" and vim.fn.mode() ~= "c" then
+        vim.cmd("silent! checktime")
+      end
+    end)
+  end,
+})
+
+-- Tell the user when a buffer was reloaded from disk
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  group = aug("autoread_notify"),
+  callback = function(ev)
+    vim.notify("Reloaded " .. vim.fn.fnamemodify(ev.file, ":~:."), vim.log.levels.INFO)
+  end,
+})
